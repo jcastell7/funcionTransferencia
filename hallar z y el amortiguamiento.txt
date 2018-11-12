@@ -1,0 +1,83 @@
+clc
+clear
+
+entrada=input('Ingrese los coeficientes de la ecuación de Entrada U(s): ');
+ fprintf('\n\n');
+salida=input('Ingrese los coeficientes de la ecuación de Salida Y(s): ');
+ fprintf('\n\n');
+disp('Funcion de transferencia: ');
+fprintf('\n\n');
+if salida~=1
+salida1 = salida/salida(1);
+ entrada1 = entrada/salida(1);
+else
+ salida1 = salida;
+ entrada1 = entrada;
+end
+printsys(entrada1,salida1);
+Wn=sqrt(salida1(3));
+Z=(salida1(2)/(2*Wn));
+fprintf('\n\n');
+ fprintf('Frecuencia Natural No Amortiguada: \n');
+ disp(Wn);
+ fprintf('Factor de Amortiguamiento: \n');
+ disp(Z);
+fprintf('\n\n');
+ if (Z<0)
+ disp('El Sistema Presenta Amortiguamiento Negativo');
+ step(entrada,salida);
+ else
+ if (Z==0)
+ disp('El Sistema No Presenta Amortiguamiento');
+ step(entrada,salida);
+ else
+ if (Z==1)
+ disp('El Sistema Tiene un Amortiguamiento Critico');
+ step(entrada,salida);
+ else
+ if (Z>1)
+ disp('El Sistema es Sobreamortiguado');
+ step(entrada,salida);
+ else
+ if (0<=Z<=1)
+ disp('El Sistema es Subamortiguado');
+ step(entrada,salida);
+ fprintf('\n\n');
+ %calculamos los Tiempos De la Funcion
+ disp('calculamos los Tiempos De la Funcion');
+ fprintf('\n\n');
+
+ %Tiempo Pico
+ disp('Tiempo Pico');
+ Tp=((pi)/(Wn*(sqrt(1-Z^2))));
+ disp(Tp);
+ fprintf('\n\n');
+
+ %Tiempo de Asentamiento
+ disp('Tiempo de Asentamiento');
+ if (0<Z<0.69)
+ Ts=((3.2)/(Z*Wn));
+ disp(Ts);
+ end
+ 
+ if (Z>0.69)
+ Ts=((4.53)/(Wn));
+ disp(Ts);
+ end
+ fprintf('\n\n');
+
+ %Altura Maxima
+ disp('Altura Maxima');
+ Ymax=(1+exp((-Z*pi)/(sqrt(1-Z^2))));
+ disp(Ymax);
+ fprintf('\n\n');
+
+ %Sobrepaso Porcentual
+ disp('Sobre Paso Porcentual');
+ Sp=((100)*(exp((-pi*Z)/(sqrt(1-Z^2)))));
+ disp(Sp);
+ end
+ end
+ end
+ end
+ end
