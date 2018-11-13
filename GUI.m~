@@ -128,8 +128,13 @@ setappdata(0,'Us',Us);
 setappdata(0,'Ys',Ys);
 PolosYCeros();
 setappdata(0,'G',G);
-Escalon();
-Rampa();
+axes(handles.grpEscalon);
+step(G);
+axes(handles.grpRampa);
+t = (0:.3:15);
+ramp = t;
+y = lsim (Us,Ys,ramp,t);
+plot (t,y,t,ramp);
 
 
 
