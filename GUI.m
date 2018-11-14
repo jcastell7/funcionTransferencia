@@ -134,8 +134,9 @@ PolosYCeros();
 setappdata(0,'G',G);
 Escalon();
 Rampa();
+errorEstadoEstable();
 %end: function
-
+    
 function tipoAmortiguamiento(Ys,handles)
 salida = Ys;
 
@@ -146,6 +147,8 @@ else
 end
 Wn=sqrt(salida1(3));
 Z=(salida1(2)/(2*Wn));
+Ts = 0;
+Sp = 0;
 if (Z<0)
     amort = 'El Sistema Presenta Amortiguamiento Negativo';
 else
