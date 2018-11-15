@@ -106,13 +106,15 @@ syms y;
 syms u;
 num = get(handles.txtY,'string');
 den = get(handles.txtU,'string');
-symNum = evalin(symengine, num);
-symDen = evalin(symengine, den);
+symNum = str2sym(num);
+symDen = str2sym(den);
 Ys = sym2poly(symNum);
 Us = sym2poly(symDen);
 G = tf (Us,Ys);
 gprint = evalc ('G');
 set (handles.lblEq, 'string', gprint);
+[z,gain] = zero(G);
+ganancia = num2str(gain);
 [polos, ceros] = pzmap(Us,Ys);
 strPolos = mat2str(polos);
 strCeros = mat2str(ceros);
@@ -124,22 +126,79 @@ else
 end
 set (handles.lblPolo, 'string',strPolos);
 set (handles.lblCero, 'string',strCeros);
+set (handles.lblGanancia, 'string',ganancia);
+tipoAmortiguamiento(Ys,handles);
 setappdata(0,'Us',Us);
 setappdata(0,'Ys',Ys);
 PolosYCeros();
 setappdata(0,'G',G);
-axes(handles.grpEscalon);
-step(G);
-axes(handles.grpRampa);
-t = (0:.3:15);
-ramp = t;
-y = lsim (Us,Ys,ramp,t);
-plot (t,y,t,ramp);
-
-
-
-
+Escalon();
+Rampa();
+errorEstadoEstable();
+stability = rhc(G);
+set(handles.lblKEstable,'on','Data',stability);
 %end: function
+    
+function tipoAmortiguamiento(Ys,handles)
+salida = Ys;
+
+if salida~=1
+    salida1 = salida/salida(1);
+else
+    salida1 = salida;
+end
+Wn=sqrt(salida1(3));
+Z=(salida1(2)/(2*Wn));
+Ts = 0;
+Sp = 0;
+if (Z<0)
+    amort = 'El Sistema Presenta Amortiguamiento Negativo';
+else
+    if (Z==0)
+        amort = 'El Sistema No Presenta Amortiguamiento';
+    else
+        if (Z==1)
+            amort = 'El Sistema Tiene un Amortiguamiento Critico';
+        else
+            if (Z>1)
+                amort = 'El Sistema es Sobreamortiguado';
+            else
+                if (0<=Z<=1)
+                    amort = 'El Sistema es Subamortiguado';
+                    
+                    %Tiempo de Asentamiento
+                    if (0<Z<0.69)
+                        Ts=((3.2)/(Z*Wn));
+                    end
+                    
+                    if (Z>0.69)
+                        Ts=((4.53)/(Wn));
+                    end
+                    %Sobrepaso Porcentual
+                    Sp=((100)*(exp((-pi*Z)/(sqrt(1-Z^2)))));
+
+                end
+            end
+        end
+    end
+end
+set (handles.lblAmortiguamiento, 'string',amort);
+strTs = num2str(Ts);
+set (handles.lblAsentamiento, 'string',strTs);
+strSp = num2str(Sp);
+set (handles.lblSobrepaso, 'string',strSp);
+
+function routh = rhc(G)
+res = zeros(1, 1998);
+co
+for k = -999:999
+Gs = k*G;
+Ts = feedback(Gs,1);   
+    if isstable(Ts)
+      res(k)=k;  
+    end
+end
+routh = [res(1),res(end)];
 
 
 

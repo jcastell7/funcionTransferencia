@@ -106,8 +106,8 @@ syms y;
 syms u;
 num = get(handles.txtY,'string');
 den = get(handles.txtU,'string');
-symNum = evalin(symengine, num);
-symDen = evalin(symengine, den);
+symNum = str2sym(num);
+symDen = str2sym(den);
 Ys = sym2poly(symNum);
 Us = sym2poly(symDen);
 G = tf (Us,Ys);
@@ -135,6 +135,8 @@ setappdata(0,'G',G);
 Escalon();
 Rampa();
 errorEstadoEstable();
+stability = rhc(G);
+set(handles.lblKEstable,'string',stability);
 %end: function
     
 function tipoAmortiguamiento(Ys,handles)
@@ -186,6 +188,18 @@ set (handles.lblAsentamiento, 'string',strTs);
 strSp = num2str(Sp);
 set (handles.lblSobrepaso, 'string',strSp);
 
+function routh = rhc(G)
+res =[];
+count = 1;
+for k = -999:999
+Gs = k*G;
+Ts = feedback(Gs,1);   
+    if isstable(Ts)
+      res(count)=k;
+      count = count + 1;
+    end
+end
+routh = [res(1),res(end)];
 
 
 
