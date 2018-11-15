@@ -73,13 +73,24 @@ function varargout = errorEstadoEstable_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 tipoSistema(handles);
 
+function cons = cambiarArray(array)
+x = array;
+B = size(x);
+syms s;
+for k = 1:B(2)
+    if isequaln(1/s,x(k))
+    x(k)=0;
+    end
+end
+cons =x;
 
 function cons = sumaArray(array)
 s = 0;
-B = size(array);
+x = cambiarArray(array);
+B = size(x);
 cons = 0;
-for k = 1:B(2)
-    cons = cons +subs(array(k));
+for i = 1:B(2)
+    cons = cons +subs(x(i));
 end
 
 function tipoSistema(handles)
@@ -90,9 +101,8 @@ symG = poly2sym(cell2mat(Num),s)/poly2sym(cell2mat(Den),s);
 x = factor(symG);
 cont = 0;
 B = size(x);
-
 for k = 1:B(2)
-    if x(k) == 1/s
+    if isequaln(1/s,x(k))
        cont = cont+1;
     end
 end
